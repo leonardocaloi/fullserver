@@ -105,7 +105,7 @@ variable "global_values" {
 
 variable "group_values" {
   description = "Valores padrão por grupo de instâncias"
-  type = list(object({
+  type = map(object({
     disk_type = string
     labels = map(string)
     tags = list(string)
