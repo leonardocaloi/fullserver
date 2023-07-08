@@ -1,0 +1,5 @@
+---
+postgres_password: "your_postgres_password"
+pgadmin_email: "your_pgadmin_email"
+pgadmin_password: "your_pgadmin_password"
+pgadmin_host: "pga.ventros.com.br"

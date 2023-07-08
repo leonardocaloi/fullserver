@@ -1,0 +1,9 @@
+---
+- name: Ensure Traefik stack is deployed
+  docker_stack:
+    state: present
+    name: traefik
+    compose:
+      src: "{{ role_path }}/templates/traefik.yaml.j2"
+    prune: yes
+    resolve_image: always

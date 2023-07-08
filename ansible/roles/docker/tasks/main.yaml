@@ -1,0 +1,12 @@
+---
+- name: Instalar apparmor-utils
+  apt:
+    name: apparmor-utils
+    state: present
+
+- name: Instalar Docker
+  shell: |
+    curl -fsSL https://get.docker.com | bash
+
+- name: Reiniciar
+  reboot:

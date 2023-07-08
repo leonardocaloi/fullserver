@@ -1,0 +1,38 @@
+---
+- name: Inicializar Docker Swarm nos managers
+  shell: docker swarm init --advertise-addr {{ ansible_host }}
+  register: swarm_init
+  run_once: true
+  when: "'managers' in group_names"
+
+- name: Salvar token de worker
+  local_action: copy content={{ swarm_init.stdout_lines[1] }} dest=./swarm-worker-token
+  run_once: true
+  delegate_to: localhost
+  when: "'managers' in group_names"
+
+- name: Criar rede overlay
+  shell: docker network create --driver=overlay network_public
+  run_once: true
+  when: "'managers' in group_names"
+
+- name: Pegar token do worker para db_node
+  local_action: shell cat ./swarm-worker-token
+  register: db_node_token
+  delegate_to: localhost
+  when: "'db_node' in group_names"
+
+- name: Incluir db_node no Swarm
+  shell: "{{ db_node_token.stdout }}"
+  when: "'db_node' in group_names"
+
+- name: Pegar token do worker para app_nodes
+  local_action: shell cat ./swarm-worker-token
+  register: worker_token
+  delegate_to: localhost
+  when: "'app_nodes' in group_names"
+
+- name: Incluir app_nodes no Swarm
+  shell: "{{ worker_token.stdout }}"
+  when: "'app_nodes' in group_names"
+

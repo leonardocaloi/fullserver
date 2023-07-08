@@ -1,0 +1,58 @@
+version: "3.7"
+
+services:
+  postgres:
+    image: postgres:14
+    environment:
+      - POSTGRES_PASSWORD={{ postgres_password }}
+    networks:
+      - network_public
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == {{ inventory_hostname }}
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
+
+  pgadmin4:
+    image: dpage/pgadmin4:latest
+    networks:
+      - network_public
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL={{ pgadmin_email }}
+      - PGADMIN_DEFAULT_PASSWORD={{ pgadmin_password }}
+      - PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION=True
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == {{ inventory_hostname }}
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.pgadmin4.rule=Host(`{{ pgadmin_host }}`)"
+        - "traefik.http.routers.pgadmin4.entrypoints=websecure"
+        - "traefik.http.routers.pgadmin4.priority=1"
+        - "traefik.http.routers.pgadmin4.tls.certresolver=letsencryptresolver"
+        - "traefik.http.services.pgadmin4.loadbalancer.server.port=80"
+        - "traefik.http.routers.pgadmin4.service=pgadmin4"
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
+
+networks:
+  network_public:
+    external: true
+
+volumes:
+  postgres_data:
+  pgadmin_data:

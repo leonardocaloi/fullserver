@@ -1,0 +1,37 @@
+---
+- hosts: all
+  become: yes
+  vars_files:
+    - global_vars.yaml
+  pre_tasks:
+    - name: Atualizar pacotes
+      apt:
+        update_cache: yes
+  roles:
+    - { role: docker, when: execute_docker_role }
+    - { role: swarm, when: execute_swarm_role }
+
+- hosts: managers
+  become: yes
+  vars_files:
+    - global_vars.yaml
+  roles:
+    - { role: traefik, when: execute_traefik_role }
+    - { role: portainer, when: execute_portainer_role }
+
+- hosts: db_node
+  become: yes
+  vars_files:
+    - global_vars.yaml
+  roles:
+    - { role: mysql, when: execute_mysql_role }
+    - { role: postgres, when: execute_postgres_role }
+    - { role: redis, when: execute_redis_role }
+
+- hosts: app_nodes
+  become: yes
+  vars_files:
+    - global_vars.yaml
+  roles:
+    - { role: codechat, when: execute_codechat_role }
+    - { role: n8n, when: execute_n8n_role}

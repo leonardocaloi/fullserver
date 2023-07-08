@@ -1,0 +1,9 @@
+---
+- name: Ensure PostgreSQL stack is deployed
+  docker_stack:
+    state: present
+    name: postgres
+    compose:
+      src: "{{ role_path }}/templates/postgres.yaml.j2"
+    prune: yes
+    resolve_image: always
